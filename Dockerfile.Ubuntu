@@ -1,0 +1,25 @@
+FROM ubuntu
+MAINTAINER purkialo@gmail.com
+LABEL description = "A docker for basic development environment."
+
+ENV PATH=/usr/bin:/usr/local/bin:$PATH
+
+RUN apt update && apt install -y python3.8 python3-pip wget zsh git neovim
+RUN ln /usr/bin/python3.8 /usr/bin/python && ln /usr/bin/pip3 /usr/bin/pip
+
+COPY package/nvim_config.tgz /root
+COPY package/omzsh.tgz /root
+COPY package/omzsh_custom.tgz /root
+
+RUN cd /root \
+        && tar -xzvf nvim_config.tgz \
+        && tar -xzvf omzsh.tgz \
+        && tar -xzvf omzsh_custom.tgz \
+        && mv ohmyzsh/ .oh-my-zsh \
+        && cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc \
+        && chsh -s $(which zsh) \
+        && cp -r custom .oh-my-zsh \
+        && rm -rf custom nvim_config.tgz omzsh.tgz omzsh_custom.tgz
+
+ENTRYPOINT [ "zsh" ]
+
